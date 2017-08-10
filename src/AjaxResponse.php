@@ -62,6 +62,11 @@ class AjaxResponse
     protected $each = null;
 
     /**
+     * @var $orders array
+     */
+    protected $orders = null;
+
+    /**
      * @param Builder $query
      * @param Request|null $request
      * @return mixed
@@ -148,6 +153,58 @@ class AjaxResponse
     }
 
     /**
+     * @param string $column
+     * @param string $order
+     * @return $this
+     */
+    public function orderBy(string $column, string $order = 'ASC')
+    {
+        if( $this->orders === null )
+            $this->orders = [];
+
+        array_push($this->orders, [
+            'column'    => $column,
+            'order'     => $order
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * @param string $column
+     * @return $this
+     */
+    public function oldest(string $column = 'created_at')
+    {
+        if( $this->orders === null )
+            $this->orders = [];
+
+        array_push($this->orders, [
+            'column'    => $column,
+            'order'     => 'ASC'
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * @param string $column
+     * @return $this
+     */
+    public function latest(string $column = 'created_at')
+    {
+        if( $this->orders === null )
+            $this->orders = [];
+
+        array_push($this->orders, [
+            'column'    => $column,
+            'order'     => 'DESC'
+        ]);
+
+        return $this;
+    }
+
+    /**
      * @param array $columns
      * @return $this
      */
@@ -217,6 +274,13 @@ class AjaxResponse
                         return $query->take($this->request->limit);
                     })
                     ;
+            })
+            ->when($this->orders, function (Builder $query) {
+                foreach ($this->orders as $order) {
+                    $query->orderBy($order['column'], $order['order']);
+                }
+
+                return $query;
             })
             ->when($this->with, function (Builder $query) {
                 return $query->with($this->with);
