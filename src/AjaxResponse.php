@@ -57,10 +57,25 @@ class AjaxResponse
     protected $makeHidden = null;
 
     /**
+     * @var $each callable
+     */
+    protected $each = null;
+
+    /**
+     * @param Builder $query
+     * @param Request|null $request
+     * @return mixed
+     */
+    public static function base(Builder $query, Request $request = null)
+    {
+        return (new AjaxResponse())->setBase($query)->request($request);
+    }
+
+    /**
      * @param Builder $query
      * @return $this
      */
-    public function base(Builder $query) {
+    public function setBase(Builder $query) {
         $this->base = $query;
 
         return $this;
@@ -154,12 +169,23 @@ class AjaxResponse
         return $this;
     }
 
-    public function get()
+    /**
+     * @param callable $callable
+     * @return $this
+     */
+    public function each(callable $callable)
     {
-        /**
-         * @var $query Builder
-         */
-        $query = $this
+        $this->each = $callable;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getQueryBeforeCount()
+    {
+        return $this
             ->base
             ->when($this->request && $this->search, function (Builder $query) {
                 return $query->when($this->request->has('search'), function (Builder $query) {
@@ -172,13 +198,15 @@ class AjaxResponse
             })
             ->when($this->beforeCount, $this->beforeCount)
         ;
+    }
 
-        $total = $query->count();
-
-        /**
-         * @var $rows Collection
-         */
-        $rows = $query
+    /**
+     * @param Builder $query
+     * @return mixed
+     */
+    public function getQueryAfterCount(Builder $query)
+    {
+        return $query
             ->when($this->afterCount, $this->afterCount)
             ->when($this->request, function (Builder $query) {
                 return $query
@@ -188,7 +216,7 @@ class AjaxResponse
                     ->when($this->request->has('limit'), function (Builder $query) {
                         return $query->take($this->request->limit);
                     })
-                ;
+                    ;
             })
             ->when($this->with, function (Builder $query) {
                 return $query->with($this->with);
@@ -196,14 +224,34 @@ class AjaxResponse
             ->when($this->withCount, function (Builder $query) {
                 return $query->withCount($this->withCount);
             })
-            ->get()
         ;
+    }
+
+    public function get()
+    {
+        /**
+         * @var $query Builder
+         */
+        $query = $this->getQueryBeforeCount();
+
+        /**
+         * @var $total int
+         */
+        $total = $query->count();
+
+        /**
+         * @var $rows Collection
+         */
+        $rows = $this->getQueryAfterCount($query)->get();
 
         if( $this->makeVisible !== null )
             $rows->makeVisible($this->makeVisible);
 
         if( $this->makeHidden !== null )
             $rows->makeHidden($this->makeHidden);
+
+        if( $this->each !== null )
+            $rows->each($this->each);
 
         return Container::getInstance()
             ->make(ResponseFactory::class)
