@@ -1,0 +1,35 @@
+{
+    "name": "adamtorok96/bootstrap-table-ajax",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adam Torok",
+            "email": "adamtorok@sch.bme.hu"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "illuminate/support": "^5.4",
+        "illuminate/database": "^5.4",
+        "illuminate/http": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "AdamTorok96\\BootstrapTableAjax\\": "src/"
+        }
+    },
+    "autoload-dev": { },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AdamTorok96\\BootstrapTableAjax\\BootstrapTableAjaxServiceProvider"
+            ],
+            "aliases": {
+                "Settings": "AdamTorok96\\BootstrapTableAjax\\Facades\\AjaxResponse"
+            }
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "stable"
+}
