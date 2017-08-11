@@ -5,10 +5,10 @@ namespace AdamTorok96\BootstrapTableAjax\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class AjaxResponseFacade extends Facade
+class AjaxResponse extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return AjaxResponse::class;
+        return \AdamTorok96\BootstrapTableAjax\AjaxResponse::class;
     }
 }

@@ -14,7 +14,7 @@ AdamTorok96\BootstrapTableAjax\BootstrapTableAjaxServiceProvider::class,
 
 Into <b>config/app.php</b> put this under aliases:<br>
 ```
-'AjaxResponse'  => AdamTorok96\BootstrapTableAjax\Facades\AjaxResponseFacade::class,
+'AjaxResponse'  => AdamTorok96\BootstrapTableAjax\Facades\AjaxResponse::class,
 ```
 
 ## Usage
