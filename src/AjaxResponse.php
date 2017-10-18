@@ -3,6 +3,7 @@
 namespace AdamTorok96\BootstrapTableAjax;
 
 
+use Exception;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,6 +66,11 @@ class AjaxResponse
      * @var $orders array
      */
     protected $orders = null;
+
+    /**
+     * @var $whens array
+     */
+    protected $whens = [];
 
     /**
      * @param Builder $query
@@ -131,23 +137,35 @@ class AjaxResponse
     }
 
     /**
-     * @param array $relations
+     * @param string|array $relation
      * @return $this
+     * @throws Exception
      */
-    public function with(array $relations)
+    public function with($relation)
     {
-        $this->with = $relations;
+        if( is_string($relation) )
+            array_push($this->with, $relation);
+        else if( is_array($relation) )
+            $this->with = array_merge($this->with, $relation);
+        else
+            throw new Exception('Unknown type of relation!');
 
         return $this;
     }
 
     /**
-     * @param array $relations
+     * @param string|array $relation
      * @return $this
+     * @throws Exception
      */
-    public function withCount(array $relations)
+    public function withCount($relation)
     {
-        $this->withCount = $relations;
+        if( is_string($relation) )
+            array_push($this->withCount, $relation);
+        else if( is_array($relation) )
+            $this->withCount = array_merge($this->withCount, $relation);
+        else
+            throw new Exception('Unknown type of relation!');
 
         return $this;
     }
@@ -204,24 +222,46 @@ class AjaxResponse
         return $this;
     }
 
-    /**
-     * @param array $columns
-     * @return $this
-     */
-    public function makeVisible(array $columns)
+    public function when(bool $when, callable $function)
     {
-        $this->makeVisible = $columns;
+        array_push($this->whens, [
+            'when'      => $when,
+            'function'  => $function
+        ]);
 
         return $this;
     }
 
     /**
-     * @param array $columns
+     * @param string|array $column
      * @return $this
+     * @throws Exception
      */
-    public function makeHidden(array $columns)
+    public function makeVisible($column)
     {
-        $this->makeHidden = $columns;
+        if( is_string($column) )
+            array_push($this->makeVisible, $column);
+        else if( is_array($column) )
+            $this->makeVisible = array_merge($this->makeVisible, $column);
+        else
+            throw new Exception('Unknown type of column!');
+
+        return $this;
+    }
+
+    /**
+     * @param string|array $column
+     * @return $this
+     * @throws Exception
+     */
+    public function makeHidden($column)
+    {
+        if( is_string($column) )
+            array_push($this->makeHidden, $column);
+        else if( is_array($column) )
+            $this->makeHidden = array_merge($this->makeHidden, $column);
+        else
+            throw new Exception('Unknown type of column!');
 
         return $this;
     }
@@ -308,13 +348,13 @@ class AjaxResponse
          */
         $rows = $this->getQueryAfterCount($query)->get();
 
-        if( $this->makeVisible !== null )
+        if( isset($this->makeVisible) )
             $rows->makeVisible($this->makeVisible);
 
-        if( $this->makeHidden !== null )
+        if( isset($this->makeHidden) )
             $rows->makeHidden($this->makeHidden);
 
-        if( $this->each !== null )
+        if( isset($this->each) )
             $rows->each($this->each);
 
         return Container::getInstance()
