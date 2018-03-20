@@ -11,13 +11,13 @@ class BootstrapTableAjaxServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app->singleton(AjaxResponseFacade::class, function () {
-            return new AjaxResponseFacade();
+        $this->app->singleton(AjaxResponse::class, function () {
+            return new AjaxResponse();
         });
     }
 
     public function provides()
     {
-        return [AjaxResponseFacade::class];
+        return [AjaxResponse::class];
     }
 }
