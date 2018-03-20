@@ -45,7 +45,7 @@ class AjaxResponse
     /**
      * @var $withCount array
      */
-    protected $withCount;
+    protected $withCount = null;
 
     /**
      * @var $makeVisible array
@@ -143,6 +143,9 @@ class AjaxResponse
      */
     public function with($relation)
     {
+        if( is_null($this->with) )
+            $this->with = [];
+
         if( is_string($relation) )
             array_push($this->with, $relation);
         else if( is_array($relation) )
@@ -160,6 +163,9 @@ class AjaxResponse
      */
     public function withCount($relation)
     {
+        if( is_null($this->withCount) )
+            $this->withCount = [];
+
         if( is_string($relation) )
             array_push($this->withCount, $relation);
         else if( is_array($relation) )
@@ -177,7 +183,7 @@ class AjaxResponse
      */
     public function orderBy(string $column, string $order = 'ASC')
     {
-        if( $this->orders === null )
+        if( is_null($this->orders) )
             $this->orders = [];
 
         array_push($this->orders, [
@@ -194,7 +200,7 @@ class AjaxResponse
      */
     public function oldest(string $column = 'created_at')
     {
-        if( $this->orders === null )
+        if( is_null($this->orders) )
             $this->orders = [];
 
         array_push($this->orders, [
@@ -211,7 +217,7 @@ class AjaxResponse
      */
     public function latest(string $column = 'created_at')
     {
-        if( $this->orders === null )
+        if( is_null($this->orders) )
             $this->orders = [];
 
         array_push($this->orders, [
@@ -284,7 +290,7 @@ class AjaxResponse
     {
         return $this
             ->base
-            ->when($this->request && $this->search, function (Builder $query) {
+            ->when($this->request && empty($this->search) === false, function (Builder $query) {
                 return $query->when($this->request->has('search'), function (Builder $query) {
                     return $query->where(function (Builder $query) {
                         foreach ($this->search as $column) {
