@@ -245,6 +245,9 @@ class AjaxResponse
      */
     public function makeVisible($column)
     {
+        if( is_null($this->makeVisible) )
+            $this->makeVisible = [];
+
         if( is_string($column) )
             array_push($this->makeVisible, $column);
         else if( is_array($column) )
@@ -262,6 +265,9 @@ class AjaxResponse
      */
     public function makeHidden($column)
     {
+        if( is_null($this->makeHidden) )
+            $this->makeHidden = [];
+
         if( is_string($column) )
             array_push($this->makeHidden, $column);
         else if( is_array($column) )
